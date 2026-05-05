@@ -11,6 +11,8 @@ import PlayerPage from './pages/PlayerPage';
 import StudentDashboard from './pages/StudentDashboard';
 import InstructorDashboard from './pages/InstructorDashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import CreateCoursePage from './pages/CreateCoursePage';
+import AddLessonPage from './pages/AddLessonPage';
 
 const PrivateRoute = ({ children, roles }) => {
   const { user, loading } = useAuth();
@@ -48,6 +50,12 @@ function App() {
           } />
           <Route path="/admin" element={
             <PrivateRoute roles={['admin']}><AdminDashboard /></PrivateRoute>
+          } />
+          <Route path="/instructor/create" element={
+            <PrivateRoute roles={['instructor', 'admin']}><CreateCoursePage /></PrivateRoute>
+          } />
+        <Route path="/instructor/lessons/:courseId" element={
+          <PrivateRoute roles={['instructor', 'admin']}><AddLessonPage /></PrivateRoute>
           } />
         </Routes>
       </Router>

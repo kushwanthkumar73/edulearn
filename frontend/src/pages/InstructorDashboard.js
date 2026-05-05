@@ -193,9 +193,10 @@ const InstructorDashboard = () => {
                       {course.isPublished ? 'Unpublish' : 'Publish'}
                     </button>
                     <button
+                      onClick={() => navigate(`/instructor/lessons/${course._id}`)}
                       className="flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-medium bg-gray-50 text-gray-600 hover:bg-gray-100 transition"
                     >
-                      <Edit size={13} /> Edit
+                      <Edit size={13} /> Lessons
                     </button>
                     <button
                       onClick={() => handleDelete(course._id)}
