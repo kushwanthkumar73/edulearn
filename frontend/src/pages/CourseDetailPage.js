@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Star, Users, Clock, Award, ChevronDown, ChevronUp, Play, Lock, Check } from 'lucide-react';
+import { Star, Users, Clock, Award, Play, Lock, Check } from 'lucide-react';
 import Navbar from '../components/Navbar';
+import ReviewSection from '../components/ReviewSection';
 import { getCourse, getLessons, checkEnrollment, enrollFree, createOrder, verifyPayment } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 
@@ -16,7 +17,6 @@ const CourseDetailPage = () => {
   const [enrollment, setEnrollment] = useState(null);
   const [loading, setLoading] = useState(true);
   const [enrolling, setEnrolling] = useState(false);
-  const [openSection, setOpenSection] = useState(0);
 
   useEffect(() => {
     fetchData();
@@ -49,6 +49,7 @@ const CourseDetailPage = () => {
         await enrollFree(id);
         setEnrollment({ courseId: id });
         alert('Enrolled successfully!');
+        fetchData();
       } else {
         const orderRes = await createOrder({ courseId: id });
         const { orderId, amount, currency } = orderRes.data;
@@ -70,6 +71,7 @@ const CourseDetailPage = () => {
             });
             setEnrollment({ courseId: id });
             alert('Payment successful! Enrolled!');
+            fetchData();
           },
           prefill: { name: user.name, email: user.email },
           theme: { color: '#6C63FF' }
@@ -79,9 +81,15 @@ const CourseDetailPage = () => {
         rzp.open();
       }
     } catch (err) {
-      alert('Enrollment failed!');
+      alert(err.response?.data?.error || 'Enrollment failed!');
     }
     setEnrolling(false);
+  };
+
+  const handleStartLearning = () => {
+    if (lessons.length > 0) {
+      navigate(`/learn/${id}/${lessons[0]._id}`);
+    }
   };
 
   if (loading) return (
@@ -93,7 +101,14 @@ const CourseDetailPage = () => {
     </div>
   );
 
-  if (!course) return <div>Course not found!</div>;
+  if (!course) return (
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <div className="text-center py-20">
+        <p className="text-gray-400">Course not found!</p>
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -122,12 +137,16 @@ const CourseDetailPage = () => {
               <div className="flex items-center gap-6 mb-6">
                 <div className="flex items-center gap-1">
                   <Star size={16} fill="#F97316" color="#F97316" />
-                  <span className="text-white font-medium">{course.rating || '4.8'}</span>
+                  <span className="text-white font-medium">{course.rating || '0'}</span>
                   <span className="text-white/40 text-sm">({course.totalReviews} ratings)</span>
                 </div>
                 <div className="flex items-center gap-1 text-white/40">
                   <Users size={15} />
                   <span className="text-sm">{course.totalStudents} students</span>
+                </div>
+                <div className="flex items-center gap-1 text-white/40">
+                  <Clock size={15} />
+                  <span className="text-sm">{lessons.length} lessons</span>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -169,41 +188,66 @@ const CourseDetailPage = () => {
               </div>
             )}
 
+            {/* Requirements */}
+            {course.requirements?.length > 0 && (
+              <div className="bg-white rounded-2xl border border-gray-100 p-6">
+                <h2 className="text-xl font-bold text-gray-900 mb-4">Requirements</h2>
+                <ul className="space-y-2">
+                  {course.requirements.map((item, i) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-gray-400 mt-2 shrink-0"></div>
+                      <span className="text-sm text-gray-600">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             {/* Curriculum */}
             <div className="bg-white rounded-2xl border border-gray-100 p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-2">Course Curriculum</h2>
               <p className="text-gray-400 text-sm mb-6">{lessons.length} lessons</p>
-              <div className="space-y-2">
-                {lessons.map((lesson, i) => (
-                  <div key={lesson._id}
-                    className={`flex items-center justify-between p-4 rounded-xl border transition ${
-                      enrollment ? 'border-gray-100 hover:bg-gray-50 cursor-pointer' : 'border-gray-100'
-                    }`}
-                    onClick={() => enrollment && navigate(`/learn/${id}/${lesson._id}`)}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center"
-                        style={{ backgroundColor: lesson.isFree || enrollment ? '#EDE9FE' : '#F3F4F6' }}>
-                        {lesson.isFree || enrollment
-                          ? <Play size={14} color="#6C63FF" />
-                          : <Lock size={14} color="#9CA3AF" />
-                        }
+
+              {lessons.length === 0 ? (
+                <p className="text-gray-400 text-center py-4">No lessons added yet</p>
+              ) : (
+                <div className="space-y-2">
+                  {lessons.map((lesson, i) => (
+                    <div key={lesson._id}
+                      className={`flex items-center justify-between p-4 rounded-xl border transition ${
+                        enrollment ? 'border-gray-100 hover:bg-gray-50 cursor-pointer' : 'border-gray-100'
+                      }`}
+                      onClick={() => enrollment && navigate(`/learn/${id}/${lesson._id}`)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center"
+                          style={{ backgroundColor: lesson.isFree || enrollment ? '#EDE9FE' : '#F3F4F6' }}>
+                          {lesson.isFree || enrollment
+                            ? <Play size={14} color="#6C63FF" />
+                            : <Lock size={14} color="#9CA3AF" />
+                          }
+                        </div>
+                        <span className="text-sm text-gray-700">{lesson.title}</span>
                       </div>
-                      <span className="text-sm text-gray-700">{lesson.title}</span>
+                      <div className="flex items-center gap-2">
+                        {lesson.isFree && !enrollment && (
+                          <span className="text-xs px-2 py-1 rounded-full"
+                            style={{ backgroundColor: '#EDE9FE', color: '#6C63FF' }}>
+                            Free
+                          </span>
+                        )}
+                        {lesson.duration > 0 && (
+                          <span className="text-xs text-gray-400">{lesson.duration} min</span>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      {lesson.isFree && !enrollment && (
-                        <span className="text-xs px-2 py-1 rounded-full"
-                          style={{ backgroundColor: '#EDE9FE', color: '#6C63FF' }}>
-                          Free
-                        </span>
-                      )}
-                      <span className="text-xs text-gray-400">{lesson.duration} min</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
+
+            {/* Reviews Section */}
+            <ReviewSection courseId={id} enrollment={enrollment} />
           </div>
 
           {/* Sticky Enrollment Card */}
@@ -219,19 +263,21 @@ const CourseDetailPage = () => {
                   {course.price === 0 ? 'FREE' : `₹${course.price}`}
                 </span>
                 {course.price > 0 && (
-                  <span className="text-gray-400 line-through text-lg">₹{course.price * 5}</span>
+                  <span className="text-gray-400 line-through text-lg">
+                    ₹{course.price * 5}
+                  </span>
                 )}
               </div>
 
               {course.price > 0 && (
                 <p className="text-green-600 text-sm font-medium mb-4">
-                  80% off — Limited time offer!
+                  80% off — Limited time!
                 </p>
               )}
 
               {enrollment ? (
                 <button
-                  onClick={() => lessons[0] && navigate(`/learn/${id}/${lessons[0]._id}`)}
+                  onClick={handleStartLearning}
                   className="w-full py-4 rounded-xl text-white font-medium text-lg transition hover:opacity-90 mb-4"
                   style={{ backgroundColor: '#14B8A6' }}
                 >

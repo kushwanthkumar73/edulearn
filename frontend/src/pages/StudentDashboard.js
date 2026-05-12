@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { BookOpen, Award, Clock, TrendingUp, Play, Star, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { getMyEnrollments, getRecommendations } from '../utils/api';
+import { getMyEnrollments, getRecommendations, getLessons } from '../utils/api';
 import Navbar from '../components/Navbar';
 
 const StudentDashboard = () => {
@@ -22,7 +22,6 @@ const StudentDashboard = () => {
     try {
       const enrollRes = await getMyEnrollments();
       setEnrollments(enrollRes.data);
-
       try {
         const recRes = await getRecommendations({
           enrolledCategories: enrollRes.data.map(e => e.courseId?.category).filter(Boolean),
@@ -36,6 +35,21 @@ const StudentDashboard = () => {
       console.error(err);
     }
     setLoading(false);
+  };
+
+  const handleContinue = async (enrollment) => {
+    const courseId = enrollment.courseId?._id;
+    try {
+      const res = await getLessons(courseId);
+      const lessons = res.data;
+      if (lessons.length > 0) {
+        navigate(`/learn/${courseId}/${lessons[0]._id}`);
+      } else {
+        navigate(`/courses/${courseId}`);
+      }
+    } catch (err) {
+      navigate(`/courses/${courseId}`);
+    }
   };
 
   const completedCourses = enrollments.filter(e => e.isCompleted).length;
@@ -53,7 +67,6 @@ const StudentDashboard = () => {
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Welcome */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -65,7 +78,6 @@ const StudentDashboard = () => {
           <p className="text-gray-400 mt-1">Continue your learning journey</p>
         </motion.div>
 
-        {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {stats.map((stat, i) => (
             <motion.div
@@ -85,7 +97,6 @@ const StudentDashboard = () => {
           ))}
         </div>
 
-        {/* Tabs */}
         <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit mb-6">
           {['overview', 'my courses', 'certificates'].map(tab => (
             <button
@@ -103,8 +114,6 @@ const StudentDashboard = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-          {/* Main Content */}
           <div className="lg:col-span-2 space-y-4">
             <h2 className="text-xl font-bold text-gray-900">Continue Learning</h2>
 
@@ -166,7 +175,7 @@ const StudentDashboard = () => {
                       </div>
                     </div>
                     <button
-                      onClick={() => navigate(`/courses/${enrollment.courseId?._id}`)}
+                      onClick={() => handleContinue(enrollment)}
                       className="flex items-center gap-2 px-4 py-2 rounded-xl text-white text-sm font-medium shrink-0 transition hover:opacity-90"
                       style={{ backgroundColor: enrollment.isCompleted ? '#14B8A6' : '#6C63FF' }}
                     >
@@ -179,9 +188,7 @@ const StudentDashboard = () => {
             )}
           </div>
 
-          {/* Sidebar */}
           <div className="space-y-6">
-            {/* AI Recommendations */}
             <div className="bg-white rounded-2xl border border-gray-100 p-5">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-6 h-6 rounded-full flex items-center justify-center"
@@ -215,7 +222,6 @@ const StudentDashboard = () => {
               )}
             </div>
 
-            {/* Quick Actions */}
             <div className="bg-white rounded-2xl border border-gray-100 p-5">
               <h3 className="font-semibold text-gray-800 mb-4">Quick Actions</h3>
               <div className="space-y-2">
