@@ -7,8 +7,9 @@
 
 A full-stack e-learning platform with 3 user roles, AI-powered quizzes, Razorpay payments, and Cloudinary video streaming.
 
-Live Demo: https://edulearn.vercel.app
-GitHub: https://github.com/KushwanthKumarBevara/edulearn
+Live Demo: [https://edulearn.vercel.app](https://edulearn-sigma-ten.vercel.app)
+Backend Live Demo: https://edulearn-po0e.onrender.com
+GitHub: [https://github.com/KushwanthKumarBevara/edulearn](https://github.com/kushwanthkumar73/edulearn)
 
 ---
 
