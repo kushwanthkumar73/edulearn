@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { BookOpen, Plus, X, Upload, ChevronLeft } from 'lucide-react';
+import { Plus, X, ChevronLeft } from 'lucide-react';
 import { createCourse, publishCourse } from '../utils/api';
 import Navbar from '../components/Navbar';
 

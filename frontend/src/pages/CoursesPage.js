@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search, Filter, Star, Users, SlidersHorizontal } from 'lucide-react';
+import { Search, Star, Users, SlidersHorizontal } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import { getCourses } from '../utils/api';
 
@@ -26,6 +26,7 @@ const CoursesPage = () => {
 
   useEffect(() => {
     fetchCourses();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
   const fetchCourses = async () => {

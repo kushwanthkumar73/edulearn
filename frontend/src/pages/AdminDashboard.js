@@ -1,24 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Users, BookOpen, TrendingUp, Shield, Check, Trash2, LogOut } from 'lucide-react';
+import { Users, BookOpen, TrendingUp, Shield, Check, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { getAdminStats, getAdminUsers, approveInstructor, getAdminCourses } from '../utils/api';
 import Navbar from '../components/Navbar';
 import { useNavigate } from 'react-router-dom';
 
 const AdminDashboard = () => {
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
   const navigate = useNavigate();
   const [stats, setStats] = useState({});
   const [users, setUsers] = useState([]);
   const [courses, setCourses] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // eslint-disable-line no-unused-vars
   const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
   const fetchData = async () => {
     try {
       const [statsRes, usersRes, coursesRes] = await Promise.all([

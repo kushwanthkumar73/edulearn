@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { Star, Users, Clock, Award, Play, Lock, Check } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import ReviewSection from '../components/ReviewSection';
@@ -20,6 +19,7 @@ const CourseDetailPage = () => {
 
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const fetchData = async () => {

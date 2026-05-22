@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Check, ChevronLeft, ChevronRight, Play, Lock, Brain, Download } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Play, Brain } from 'lucide-react';
 import { getLesson, getLessons, updateProgress, generateQuiz } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 
 const PlayerPage = () => {
   const { courseId, lessonId } = useParams();
+  // eslint-disable-next-line no-unused-vars
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -21,6 +22,7 @@ const PlayerPage = () => {
 
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lessonId]);
 
   const fetchData = async () => {

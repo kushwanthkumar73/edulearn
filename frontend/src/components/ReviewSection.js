@@ -17,6 +17,7 @@ const ReviewSection = ({ courseId, enrollment }) => {
 
   useEffect(() => {
     fetchReviews();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courseId]);
 
   const fetchReviews = async () => {

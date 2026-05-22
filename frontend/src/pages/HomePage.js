@@ -8,7 +8,7 @@ import { getCourses } from '../utils/api';
 const HomePage = () => {
   const [courses, setCourses] = useState([]);
   const navigate = useNavigate();
-  const [search, setSearch] = useState('');
+  
 
   useEffect(() => {
     const fetchCourses = async () => {
