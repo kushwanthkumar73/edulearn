@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { BookOpen, Award, Clock, TrendingUp, Play, Star, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { getMyEnrollments, getRecommendations, getLessons } from '../utils/api';
+import { getMyEnrollments, getRecommendations, getLessons, downloadCertificate } from '../utils/api';
 import Navbar from '../components/Navbar';
 
 const StudentDashboard = () => {
@@ -52,6 +52,20 @@ const StudentDashboard = () => {
     }
   };
 
+  const handleDownloadCertificate = async (enrollment) => {
+    try {
+      const res = await downloadCertificate(enrollment.courseId?._id);
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `certificate-${enrollment.courseId?.title}.pdf`;
+      link.click();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      alert('Complete the course first!');
+    }
+  };
+
   const completedCourses = enrollments.filter(e => e.isCompleted).length;
   const totalHours = enrollments.length * 8;
 
@@ -78,6 +92,7 @@ const StudentDashboard = () => {
           <p className="text-gray-400 mt-1">Continue your learning journey</p>
         </motion.div>
 
+        {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {stats.map((stat, i) => (
             <motion.div
@@ -97,6 +112,7 @@ const StudentDashboard = () => {
           ))}
         </div>
 
+        {/* Tabs */}
         <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit mb-6">
           {['overview', 'my courses', 'certificates'].map(tab => (
             <button
@@ -114,6 +130,8 @@ const StudentDashboard = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+          {/* Main Content */}
           <div className="lg:col-span-2 space-y-4">
             <h2 className="text-xl font-bold text-gray-900">Continue Learning</h2>
 
@@ -174,13 +192,35 @@ const StudentDashboard = () => {
                         </span>
                       </div>
                     </div>
+                  </div>
+
+                  {/* Buttons Row */}
+                  <div className="flex items-center gap-2 mt-4 pt-4 border-t border-gray-50">
                     <button
                       onClick={() => handleContinue(enrollment)}
-                      className="flex items-center gap-2 px-4 py-2 rounded-xl text-white text-sm font-medium shrink-0 transition hover:opacity-90"
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl text-white text-sm font-medium transition hover:opacity-90"
                       style={{ backgroundColor: enrollment.isCompleted ? '#14B8A6' : '#6C63FF' }}
                     >
                       <Play size={14} />
                       {enrollment.isCompleted ? 'Review' : 'Continue'}
+                    </button>
+
+                    {enrollment.isCompleted && (
+                      <button
+                        onClick={() => handleDownloadCertificate(enrollment)}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-white text-sm font-medium transition hover:opacity-90"
+                        style={{ backgroundColor: '#F97316' }}
+                      >
+                        <Award size={14} />
+                        Certificate
+                      </button>
+                    )}
+
+                    <button
+                      onClick={() => navigate(`/courses/${enrollment.courseId?._id}`)}
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border border-gray-200 text-gray-500 hover:bg-gray-50 transition"
+                    >
+                      View Course
                     </button>
                   </div>
                 </motion.div>
@@ -188,7 +228,9 @@ const StudentDashboard = () => {
             )}
           </div>
 
+          {/* Sidebar */}
           <div className="space-y-6">
+            {/* AI Recommendations */}
             <div className="bg-white rounded-2xl border border-gray-100 p-5">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-6 h-6 rounded-full flex items-center justify-center"
@@ -222,6 +264,7 @@ const StudentDashboard = () => {
               )}
             </div>
 
+            {/* Quick Actions */}
             <div className="bg-white rounded-2xl border border-gray-100 p-5">
               <h3 className="font-semibold text-gray-800 mb-4">Quick Actions</h3>
               <div className="space-y-2">

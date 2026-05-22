@@ -13,6 +13,7 @@ import InstructorDashboard from './pages/InstructorDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import CreateCoursePage from './pages/CreateCoursePage';
 import AddLessonPage from './pages/AddLessonPage';
+import ProfilePage from './pages/ProfilePage';
 
 const PrivateRoute = ({ children, roles }) => {
   const { user, loading } = useAuth();
@@ -56,6 +57,9 @@ function App() {
           } />
         <Route path="/instructor/lessons/:courseId" element={
           <PrivateRoute roles={['instructor', 'admin']}><AddLessonPage /></PrivateRoute>
+          } />
+        <Route path="/profile" element={
+          <PrivateRoute><ProfilePage /></PrivateRoute>
           } />
         </Routes>
       </Router>

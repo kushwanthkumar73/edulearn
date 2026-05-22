@@ -4,6 +4,7 @@ const Enrollment = require('../models/Enrollment');
 const Course = require('../models/Course');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
+const { sendEnrollmentEmail } = require('../utils/email');
 
 // Enroll in free course
 router.post('/enroll/:courseId', auth, async (req, res) => {
@@ -11,14 +12,12 @@ router.post('/enroll/:courseId', auth, async (req, res) => {
     const course = await Course.findById(req.params.courseId);
     if (!course) return res.status(404).json({ error: 'Course not found' });
 
-    // Check already enrolled
     const existing = await Enrollment.findOne({
       userId: req.user.id,
       courseId: req.params.courseId
     });
     if (existing) return res.status(400).json({ error: 'Already enrolled!' });
 
-    // Only free courses direct enroll
     if (course.price > 0) {
       return res.status(400).json({ error: 'This is a paid course. Please use payment route.' });
     }
@@ -28,6 +27,9 @@ router.post('/enroll/:courseId', auth, async (req, res) => {
       courseId: req.params.courseId
     });
     await enrollment.save();
+
+    // Send enrollment email
+    sendEnrollmentEmail(req.user.email, req.user.name || 'Student', course.title);
 
     // Update course student count
     await Course.findByIdAndUpdate(req.params.courseId, {
@@ -85,12 +87,10 @@ router.patch('/progress/:courseId', auth, async (req, res) => {
 
     if (!enrollment) return res.status(404).json({ error: 'Enrollment not found' });
 
-    // Add completed lesson if not already
     if (!enrollment.completedLessons.includes(lessonId)) {
       enrollment.completedLessons.push(lessonId);
     }
 
-    // Get total lessons count
     const course = await Course.findById(req.params.courseId).populate('lessons');
     const totalLessons = course.lessons.length;
     const completedCount = enrollment.completedLessons.length;

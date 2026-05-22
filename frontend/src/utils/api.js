@@ -70,4 +70,8 @@ export const uploadImage = (formData) => API.post('/upload/image', formData, {
   headers: { 'Content-Type': 'multipart/form-data' },
 });
 
+// Certificate
+export const downloadCertificate = (courseId) =>
+  API.get(`/certificates/generate/${courseId}`, { responseType: 'blob' });
+
 export default API;

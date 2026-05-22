@@ -7,6 +7,7 @@ const Enrollment = require('../models/Enrollment');
 const Course = require('../models/Course');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
+const { sendEnrollmentEmail } = require('../utils/email');
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -69,7 +70,8 @@ router.post('/verify', auth, async (req, res) => {
       await Course.findByIdAndUpdate(courseId, { $inc: { totalStudents: 1 } });
       await User.findByIdAndUpdate(req.user.id, { $push: { enrolledCourses: courseId } });
     }
-
+    const courseData = await Course.findById(courseId);
+    await sendEnrollmentEmail(req.user.email, req.user.name || 'Student', courseData.title);
     res.json({ message: 'Payment successful! Enrolled in course.' });
   } catch (err) {
     res.status(500).json({ error: err.message });

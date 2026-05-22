@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
+const { sendWelcomeEmail } = require('../utils/email');
 
 // Register
 router.post('/register', async (req, res) => {
@@ -26,6 +27,7 @@ router.post('/register', async (req, res) => {
     });
 
     await user.save();
+    await sendWelcomeEmail(user.email, user.name);
 
     const token = jwt.sign(
       { id: user._id, name: user.name, email: user.email, role: user.role },
